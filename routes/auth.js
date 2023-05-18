@@ -3,11 +3,27 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const { ArtistModel } = require("../models/artist_model");
 const passport = require('passport');
+const multer = require('multer');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+router.get('/login', function(req, res, next) {
+  res.render('auth/login', { title: 'Express' });
+});
+
+router.get('/check', async (req, res)=>{
+  let isAuthenticated = req.isAuthenticated();
+
+  let u = new ArtistModel()
+  if (isAuthenticated){
+  req.user.then(usr=>{
+    console.log(usr);
+    res.json({user: usr})
+  })}
+  else { res.status(401).send('UNAUTHORIZED')}
+})
 router.post("/signup", async (req,res) => {
   const { username, email, password } = req.body
   if (username && email && password) {
@@ -46,5 +62,9 @@ router.post("/login", passport.authenticate('local', {
 
 router.get('/success', (req, res) =>{
   res.send("Auth successfull")
+})
+
+router.get('/fail', (req, res) =>{
+  res.status(401).send("NOT! Authenticated")
 })
 module.exports = router;
