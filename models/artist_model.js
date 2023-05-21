@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose");
+
+const { Schema, model, default: mongoose, MongooseError } = require("mongoose");
 const ArtistSchema = new Schema({
     username: {
         type: String,
@@ -12,7 +13,8 @@ const ArtistSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        
     },
     artwork: String,
   
@@ -31,4 +33,4 @@ const ArtistSchema = new Schema({
 
 })
 const ArtistModel = model("Artist", ArtistSchema )
-module.exports = { ArtistModel }
+module.exports = { ArtistModel} 

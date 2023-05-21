@@ -16,10 +16,8 @@ router.get('/login', function(req, res, next) {
 router.get('/check', async (req, res)=>{
   let isAuthenticated = req.isAuthenticated();
 
-  let u = new ArtistModel()
   if (isAuthenticated){
   req.user.then(usr=>{
-    console.log(usr);
     res.json({user: usr})
   })}
   else { res.status(401).send('UNAUTHORIZED')}

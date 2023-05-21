@@ -3,4 +3,7 @@ const checkAuthenticated = (req, res, next) =>{
     else res.redirect('/auth/fail')
   }
 
-module.exports = { checkAuthenticated }
+  const genUID = ()=>{
+    return Date.now() + "-" + Math.round(Math.random() * 1e9);
+  }
+module.exports = { checkAuthenticated, genUID }
