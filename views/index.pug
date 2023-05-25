@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  audio#audio(src="/video", controls)
+  //video(controls  width="600" height="281")
+  //  source(src="/video", type="video/mp4")
+  //audio( src="https://res.cloudinary.com/sketchi/raw/authenticated/s--kvxjuqtk--/v1684991105/TunedBass/Tonics/audio/TB_Raw%20808%20tut-by-Tonics-1684991101477-74536342.mp3" hidden crossorigin="anonymous") 
+  p#url
+  button#play-btn(onclick="playPause()") Play
+  input#slider(type="range", name="slider", min=0, max=320, value=0)
+  p#range-val 0
