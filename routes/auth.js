@@ -28,6 +28,8 @@ router.post("/signup", async (req,res) => {
     const hashedPass = await bcrypt.hash(password, 10)
     const user = new ArtistModel()
     user.username = username
+
+    
     user.password = hashedPass
     user.email = email
 
