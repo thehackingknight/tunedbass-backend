@@ -18,7 +18,7 @@ router.get('/check', async (req, res)=>{
 
   if (isAuthenticated){
   req.user.then(usr=>{
-    res.json({user: usr})
+    res.status(200).json({user: usr})
   })}
   else { res.status(401).send('UNAUTHORIZED')}
 })

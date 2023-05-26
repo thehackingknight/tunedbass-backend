@@ -39,6 +39,7 @@ router.get("/", async (req, res) => {
         ...track.toObject(),
         artist: artist.toJSON(),
         url: hashedURL,
+        id: track.id
       });
     }
 
