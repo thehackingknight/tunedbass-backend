@@ -80,20 +80,11 @@ router.post("/delete", multer().none(), async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
-router.get("/url/:url", async (req, res) => {
-  try {
-    const hashedURL = req.params.url;
-    res.send("ok");
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(requestErr());
-  }
-});
 
 router.get("/url", async (req, res) => {
   try {
     let { url } = req.query;
-    url = jwt.verify(url, process.env.SECRET_KEY);
+    url = jwt.verify(url, process.env.SECRET_KEY).replace("http:", "https:");
     https.get(url, stream => {
       stream.pipe(res)
       stream.on("end", _=> res.end())
