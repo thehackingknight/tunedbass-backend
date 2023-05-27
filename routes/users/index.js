@@ -1,13 +1,14 @@
 const router = require("express").Router();
 const { ArtistModel } = require("../../models/artist_model");
 const { TrackModel } = require("../../models/track_model");
-
+const { requestErr} = require("../../utils/functions")
 router.get("/", async (req, res) => {
   const { username } = req.query;
 
   let data;
   if (username) {
     data = await ArtistModel.findOne({ username }).exec();
+    if (!data) return res.status(404).json(requestErr("User with specified username not found"))
     let tracks = [];
     let plays = 0, likes = 0, shares = 0;
     for (let trackId of data.tracks) {
