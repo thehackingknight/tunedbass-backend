@@ -15,7 +15,7 @@ const https = require("https");
 
 const { default: axios } = require("axios");
 
-router.get("/:endpoint", async (req, res) => {
+router.get("/ep/:endpoint", async (req, res) => {
   const { endpoint } = req.params;
   const { ref } = req.query;
 
@@ -54,8 +54,7 @@ router.get("/:endpoint", async (req, res) => {
       res.status(500).send("ERA");
     }
   }
-  else if (endpoint == "url") urlRoute(req, res)
-  else if (endpoint == "delete") deleteRoute(req, res)
+
 });
 
 router.get("/", async (req, res) => {
@@ -63,11 +62,21 @@ router.get("/", async (req, res) => {
   const { id, kind } = req.query;
   let tracks;
   try {
-    tracks = id
-      ? [await TrackModel.findById(id).exec()]
-      : await TrackModel.find().exec();
+
+    if (id){
+      let track = await TrackModel.findById(id).exec()
+      tracks = [track]
+      if (!track){
+        return res.status(404).json(requestErr("Track not found"));
+      }
+      
+    } else{
+      tracks = await TrackModel.find().exec();
+    }
+    
   } catch (e) {
-    res.status(404).json(requestErr("Track not found"));
+    console.log(e);
+      res.status(500).send("Something went wrong");
     return;
   }
 
@@ -96,7 +105,7 @@ router.get("/", async (req, res) => {
     res.status(500).send("Something went wrong");
   }
 });
-const deleteRoute = async (req, res) => {
+router.post("/delete", async (req, res) => {
   const { id } = req.body;
   try {
     let track = await TrackModel.findById(id).exec();
@@ -125,10 +134,10 @@ const deleteRoute = async (req, res) => {
     console.log(err);
     res.status(500).send("Internal server error");
   }
-};
- 
+}
+)
 
-const urlRoute = async (req, res) => {
+router.get("/url", async (req, res) => {
   try {
     let { url } = req.query;
     // @ts-ignore
@@ -143,7 +152,7 @@ const urlRoute = async (req, res) => {
     console.log(err);
     res.status(500).json(requestErr());
   }
-};
+})
 router.use("/upload", uploadRouter);
 router.use("/download", downloadRouter);
 router.use("/modify", multer().none(), modifyRouter);
