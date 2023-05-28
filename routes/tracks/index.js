@@ -9,12 +9,56 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
 const { configCloudinary, requestErr } = require("../../utils/functions");
+// @ts-ignore
 const path = require("path");
 const https = require("https");
+// @ts-ignore
 const { default: axios } = require("axios");
 
+router.get("/:endpoint", async (req, res) => {
+  const { endpoint } = req.params;
+  const { ref } = req.query;
+
+  if (endpoint == "related") {
+    try {    
+      let refTrack = await TrackModel.findById(ref).exec()
+      let tagsRegex = refTrack?.tags.map(tag => new RegExp(tag.trim()));
+      let tracks = await TrackModel.find({
+        tags: {
+          $in: tagsRegex,
+        },
+        
+      }).exec();
+
+      if (!refTrack) return res.status(404).json(requestErr("Reference track not found"));
+      tracks = tracks.filter(it=> it.id !== refTrack.id)
+      let data = []
+      for (let track of tracks) {
+        let artist = await ArtistModel.findById(track?.artist.toString()).exec();
+        if (!artist?.username) {
+          continue;
+        }
+        // @ts-ignore
+        let hashedURL = jwt.sign(track?.url, process.env.SECRET_KEY);
+  
+        data.push({
+          ...track?.toObject(),
+          artist: artist.toJSON(),
+          url: hashedURL,
+          id: track?.id,
+        });
+      }
+      res.json({ tracks: data });
+    } catch (e) {
+      console.log(e);
+      res.status(500).send("ERA");
+    }
+  }
+});
+
 router.get("/", async (req, res) => {
-  const { id } = req.query;
+  // @ts-ignore
+  const { id, kind } = req.query;
   let tracks;
   try {
     tracks = id
@@ -29,17 +73,18 @@ router.get("/", async (req, res) => {
 
   try {
     for (let track of tracks) {
-      let artist = await ArtistModel.findById(track.artist.toString()).exec();
+      let artist = await ArtistModel.findById(track?.artist.toString()).exec();
       if (!artist?.username) {
         continue;
       }
-      let hashedURL = jwt.sign(track.url, process.env.SECRET_KEY);
+      // @ts-ignore
+      let hashedURL = jwt.sign(track?.url, process.env.SECRET_KEY);
 
       data.push({
-        ...track.toObject(),
+        ...track?.toObject(),
         artist: artist.toJSON(),
         url: hashedURL,
-        id: track.id
+        id: track?.id,
       });
     }
 
@@ -65,6 +110,7 @@ router.post("/delete", multer().none(), async (req, res) => {
       // Removing from artist track list
       let artist = await ArtistModel.findById(track.artist).exec();
       if (artist) {
+        // @ts-ignore
         artist.tracks = artist.tracks.filter((it) => it !== track.id);
         artist.save();
       } else {
@@ -84,11 +130,13 @@ router.post("/delete", multer().none(), async (req, res) => {
 router.get("/url", async (req, res) => {
   try {
     let { url } = req.query;
+    // @ts-ignore
     url = jwt.verify(url, process.env.SECRET_KEY).replace("http:", "https:");
-    https.get(url, stream => {
-      stream.pipe(res)
-      stream.on("end", _=> res.end())
-    })
+    // @ts-ignore
+    https.get(url, (stream) => {
+      stream.pipe(res);
+      stream.on("end", (_) => res.end());
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json(requestErr());

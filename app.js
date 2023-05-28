@@ -71,7 +71,7 @@ connectMongo()
 const parser = multer().none() // for req.body
 app.use('/', indexRouter);
 app.use('/users', parser, usersRouter);
-app.use('/test', testRouter);
+app.use('/test', testRouter); 
 app.use('/auth', parser, authRouter);
 app.use('/tracks', tracksRouter);
 app.use('/mail', mailRouter);
