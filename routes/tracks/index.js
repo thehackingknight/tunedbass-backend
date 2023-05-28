@@ -9,10 +9,10 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
 const { configCloudinary, requestErr } = require("../../utils/functions");
-// @ts-ignore
+
 const path = require("path");
 const https = require("https");
-// @ts-ignore
+
 const { default: axios } = require("axios");
 
 router.get("/:endpoint", async (req, res) => {
@@ -38,7 +38,7 @@ router.get("/:endpoint", async (req, res) => {
         if (!artist?.username) {
           continue;
         }
-        // @ts-ignore
+        
         let hashedURL = jwt.sign(track?.url, process.env.SECRET_KEY);
   
         data.push({
@@ -54,10 +54,12 @@ router.get("/:endpoint", async (req, res) => {
       res.status(500).send("ERA");
     }
   }
+  else if (endpoint == "url") urlRoute(req, res)
+  else if (endpoint == "delete") deleteRoute(req, res)
 });
 
 router.get("/", async (req, res) => {
-  // @ts-ignore
+  
   const { id, kind } = req.query;
   let tracks;
   try {
@@ -77,7 +79,7 @@ router.get("/", async (req, res) => {
       if (!artist?.username) {
         continue;
       }
-      // @ts-ignore
+      
       let hashedURL = jwt.sign(track?.url, process.env.SECRET_KEY);
 
       data.push({
@@ -94,8 +96,7 @@ router.get("/", async (req, res) => {
     res.status(500).send("Something went wrong");
   }
 });
-
-router.post("/delete", multer().none(), async (req, res) => {
+const deleteRoute = async (req, res) => {
   const { id } = req.body;
   try {
     let track = await TrackModel.findById(id).exec();
@@ -110,7 +111,6 @@ router.post("/delete", multer().none(), async (req, res) => {
       // Removing from artist track list
       let artist = await ArtistModel.findById(track.artist).exec();
       if (artist) {
-        // @ts-ignore
         artist.tracks = artist.tracks.filter((it) => it !== track.id);
         artist.save();
       } else {
@@ -125,13 +125,15 @@ router.post("/delete", multer().none(), async (req, res) => {
     console.log(err);
     res.status(500).send("Internal server error");
   }
-});
+};
+ 
 
-router.get("/url", async (req, res) => {
+const urlRoute = async (req, res) => {
   try {
     let { url } = req.query;
     // @ts-ignore
     url = jwt.verify(url, process.env.SECRET_KEY).replace("http:", "https:");
+    console.log(url);
     // @ts-ignore
     https.get(url, (stream) => {
       stream.pipe(res);
@@ -141,7 +143,7 @@ router.get("/url", async (req, res) => {
     console.log(err);
     res.status(500).json(requestErr());
   }
-});
+};
 router.use("/upload", uploadRouter);
 router.use("/download", downloadRouter);
 router.use("/modify", multer().none(), modifyRouter);
