@@ -11,16 +11,15 @@ const init = (passport) => {
     userQuery
       .then(async (user) => {
         if (user == null)
-          return done(null, false, { message: "User not found" });
+          return done(null, false, { msg: "User not found" });
 
         try {
-          console.log(user.password);
           if (await bcrypt.compare(password, user.password)) {
             console.log("Suceess");
             console.log(done);
             return done(null, user);
           } else {
-            return done(null, false, { message: "Password incorrect" });
+            return done(null, false, { msg: "Password incorrect" });
           }
         } catch (err) {
           console.log(err);

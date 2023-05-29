@@ -3,7 +3,7 @@ const cloudinary = require("cloudinary").v2;
 const nodemailer = require("nodemailer")
 const checkAuthenticated = (req, res, next) =>{
     if(req.isAuthenticated()) return next()
-    else res.status(401).send("AUTHENTICATION FAILED!")
+    else res.status(401).json({msg:"AUTHENTICATION FAILED!"})
   }
 
   const genUID = ()=>{
