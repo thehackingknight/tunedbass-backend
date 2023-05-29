@@ -38,7 +38,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+const corsOptions = {
+  headers: [
+    { key: "Access-Control-Allow-Credentials", value: "true" },
+    { key: "Access-Control-Allow-Origin", value: "*" },
+    // ...
+  ],
+  origin: "*",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 app.use(cors());
+app.use(cors(corsOptions));
 /* app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
