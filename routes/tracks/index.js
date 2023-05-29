@@ -63,7 +63,7 @@ const corsOptions = {
     { key: "Access-Control-Allow-Origin", value: "*" },
     // ...
   ],}
-router.get("/", cors(corsOptions), async (req, res) => {
+router.get("/", async (req, res) => {
   console.log(req.hostname);
   const { id } = req.query;
   let tracks;

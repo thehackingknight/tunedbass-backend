@@ -20,7 +20,7 @@ router.get('/check', async (req, res)=>{
   req.user.then(usr=>{
     res.status(200).json({user: usr})
   })}
-  else { res.status(401).send('UNAUTHORIZED')}
+  else { res.status(401).json({"msg": "Incorrect credentials"})}
 })
 router.post("/signup", async (req,res) => {
   const { username, email, password } = req.body
@@ -50,7 +50,7 @@ router.post("/signup", async (req,res) => {
       }
       
       console.log(err.message);
-      res.status(500).send(erroMsg)
+      res.status(500).json({msg: erroMsg})
     }
 
   }
