@@ -17,7 +17,7 @@ router.get("/", async (req, res)=>{
 
      /*  stream.on("data", data=>{
       res.write(data)
-    })
+    }) 
 
     stream.on('error', () => {
       res.sendStatus(404);
