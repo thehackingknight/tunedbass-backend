@@ -9,12 +9,14 @@ router.get("/", async function (req, res, next) {
     const { q } = req.query;
 
     let tracks = await TrackModel.find({
-      tags: { $in: new RegExp(`${q}`)},
+      tags: { $in: [new RegExp(`${q}`)]},
+      //title: { $regex: q, $options: "i" },
+    }).exec();
+    tracks = tracks.concat(await TrackModel.find({
       title: { $regex: q, $options: "i" },
-    }).exec();
-    let artists = await ArtistModel.find({
-      username: { $regex: q, $options: "i" },
-    }).exec();
+    }).exec())
+
+    let artists = [] //await ArtistModel.find({    username: { $regex: q, $options: "i" }, }).exec();
     let _tracks = [];
     let _artists = [];
 
