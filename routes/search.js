@@ -1,39 +1,43 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {TrackModel} = require("../models/track_model")
-const { checkAuthenticated, requestErr } = require('../utils/functions');
-const { ArtistModel } = require('../models/artist_model');
+const { TrackModel } = require("../models/track_model");
+const { checkAuthenticated, requestErr } = require("../utils/functions");
+const { ArtistModel } = require("../models/artist_model");
 /* GET home page. */
-router.get('/', async function(req, res, next) {
+router.get("/", async function (req, res, next) {
+  try {
+    const { q } = req.query;
 
-  try{
-    const { q } = req.query
+    let tracks = await TrackModel.find({
+      tags: { $in: new RegExp(`${q}`)},
+      title: { $regex: q, $options: "i" },
+    }).exec();
+    let artists = await ArtistModel.find({
+      username: { $regex: q, $options: "i" },
+    }).exec();
+    let _tracks = [];
+    let _artists = [];
 
-
-    let tracks = await TrackModel.find({ title : { $regex: q, $options: "i" }}).exec()
-    let artists = await ArtistModel.find({ username : { $regex: q, $options: "i" }}).exec()
-    let _tracks = []
-    let _artists = []
-
-    for (let track of tracks){
-      let artist = await ArtistModel.findById(track.artist).exec()
-      _tracks.push({...track.toObject(), artist: {...artist.toObject(), id: artist.id}, id: track.id})
+    for (let track of tracks) {
+      let artist = await ArtistModel.findById(track.artist).exec();
+      _tracks.push({
+        ...track.toObject(),
+        artist: { ...artist.toObject(), id: artist.id },
+        id: track.id,
+      });
     }
-    for (let artist of artists){
-      _artists.push({...artist.toObject(), id: artist.id})
+    for (let artist of artists) {
+      _artists.push({ ...artist.toObject(), id: artist.id });
     }
     let data = {
       tracks: _tracks,
       artists: _artists,
-    }
-    res.json(data)
-  }
-  catch(e){
+    };
+    res.json(data);
+  } catch (e) {
     console.log(e);
-    res.status(500).json(requestErr())
+    res.status(500).json(requestErr());
   }
-  
 });
-
 
 module.exports = router;

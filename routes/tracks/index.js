@@ -59,7 +59,7 @@ router.get("/ep/:endpoint", async (req, res) => {
 
 router.get("/", async (req, res) => {
   
-  const { id, kind } = req.query;
+  const { id } = req.query;
   let tracks;
   try {
 
@@ -96,6 +96,7 @@ router.get("/", async (req, res) => {
         artist: artist.toJSON(),
         url: hashedURL,
         id: track?.id,
+        tags: track?.tags.filter(tag => tag)
       });
     }
 
