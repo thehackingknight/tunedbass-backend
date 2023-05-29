@@ -12,8 +12,11 @@ router.get('/', function(req, res, next) {
 router.get("/enc", async (req, res)=>{
 
   try{
-    let data = await (await axios.get("http://localhost:5000/todos")).data
-  res.json({ data })
+    let data = {
+      name: "John",
+      surname: "Doe"
+    }
+  res.json(data)
   }
   catch(err){
     console.log(err);
