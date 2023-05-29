@@ -14,6 +14,7 @@ const path = require("path");
 const https = require("https");
 
 const { default: axios } = require("axios");
+const cors = require("cors");
 
 router.get("/ep/:endpoint", async (req, res) => {
   const { endpoint } = req.params;
@@ -56,9 +57,14 @@ router.get("/ep/:endpoint", async (req, res) => {
   }
 
 });
-
-router.get("/", async (req, res) => {
-  
+const corsOptions = {
+  headers: [
+    { key: "Access-Control-Allow-Credentials", value: "true" },
+    { key: "Access-Control-Allow-Origin", value: "*" },
+    // ...
+  ],}
+router.get("/", cors(corsOptions), async (req, res) => {
+  console.log(req.hostname);
   const { id } = req.query;
   let tracks;
   try {
