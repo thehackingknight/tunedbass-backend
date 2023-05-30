@@ -132,11 +132,15 @@ router.post("/complete", async (req, res) => {
   }
 });
 router.post("/create", async (req, res) => {
+
+  if (!req.user) return res.status(401).json({msg: "Please login to create an order"})
   try {
-    let { name, email, items } = req.body;
+    let {  items } = req.body;
     items = JSON.parse(items);
     let order = new Order();
-    order.creator = { name, email };
+    let user = await req.user.exec()
+    order.creator = user.id;
+    
     let total = 0;
 
     for (let item of items) {
@@ -154,7 +158,9 @@ router.post("/create", async (req, res) => {
     }
     order.items = items;
     order.total = total;
-    order.save();
+    await order.save();
+    user.orders.push(order.id)
+    await user.save()
     res.send(order.id);
   } catch (err) {
     console.log(err);

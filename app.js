@@ -15,6 +15,7 @@ const payRouter = require('./routes/pay');
 const searchRouter = require('./routes/search');
 const orderRouter = require('./routes/order');
 const videoRouter = require('./routes/video');
+const cartRouter = require('./routes/cart');
 const mailRouter = require('./routes/mail');
 const { default: mongoose } = require('mongoose');
 const passport = require("passport")
@@ -75,7 +76,7 @@ async function connectMongo(){
    console.log(e); 
   }
 }
-connectMongo()
+(async function(){await connectMongo()})()
 /*------------------ End mongodb ----------------------- */
 const parser = multer().none() // for req.body
 app.use('/', indexRouter);
@@ -87,6 +88,7 @@ app.use('/mail', mailRouter);
 app.use('/pay',payRouter);
 app.use('/search',searchRouter);
 app.use('/video',videoRouter);
+app.use('/cart',cartRouter);
 app.use('/order', parser, orderRouter);
 //app.use('/tracks/upload', uploadRouter);
 

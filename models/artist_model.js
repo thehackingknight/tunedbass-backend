@@ -25,6 +25,7 @@ const ArtistSchema = new Schema({
         type: [Schema.Types.String],
     
     },
+    orders: [],
     date_created: {
         type: Date,
         default: new Date()

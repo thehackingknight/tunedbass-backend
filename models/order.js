@@ -30,10 +30,7 @@ const OrderSchema = new Schema({
     },
     given_name: String,
     creator: {
-        type: {
-            name: String,
-            email: String,
-        },
+        type: String,
         required: true
     },
     date_created: {
