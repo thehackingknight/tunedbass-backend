@@ -26,6 +26,7 @@ router.post("/", upload.none(), async (req, res) => {
     tags,
     genre,
     public_id,
+    size_in_bytes,
     url
   } = req.body;
 
@@ -39,18 +40,19 @@ router.post("/", upload.none(), async (req, res) => {
           // Save to db
           let track = new TrackModel();
           track.title = title;
-          track.price = parseFloat(price).toFixed(2);
+          track.price = parseFloat(price);
           track.artist = user.id.toString();
           track.album = album;
           track.genre = genre;
           track.collabos = collabos.split(",");
           track.tags = tags.split(",");
-          track.is_beat = parseInt(is_beat);
-          track.is_demo = parseInt(is_demo);
+          track.is_beat = parseInt(is_beat) == 0 ? false: true;
+          track.is_demo = parseInt(is_demo) == 0 ? false: true;
           track.duration = `${duration}`;
           track.release_date = release_date;
           track.url = url;
           track.public_id = public_id;
+          track.size_in_bytes = parseFloat(size_in_bytes);
           try {
             user.tracks.push(track.id);
             await track.save();

@@ -82,8 +82,11 @@ router.get("/:token", async (req, res) => {
 
   configCloudinary();
   try {
-    let jwtInfo = require("jsonwebtoken").verify(token, process.env.SECRET_KEY, { algorithms: ["HS256"]})
+    
+    let jwtInfo = require("jsonwebtoken").verify(token, `${process.env.SECRET_KEY}`)
     const { trackId} = jwtInfo
+
+    //console.log(jwtInfo);
     //return res.send("Pls wait")
     let track = await TrackModel.findById(trackId).exec()
 
@@ -93,7 +96,7 @@ router.get("/:token", async (req, res) => {
     if (true) {
       range = range ? range : "bytes=0-"
       // @ts-ignore
-      let total = 1384559//Math.floor((1024*1024) * 12.2)
+      let total = track.size_in_bytes// 1384559//Math.floor((1024*1024) * 12.2)
       
       const parts = range.replace(/bytes=/, '').split('-');
       const partialStart = parts[0];

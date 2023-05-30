@@ -17,8 +17,9 @@ const TrackSchema = new Schema({
         type: String,
         required: true
     },
-    sizeInBytes: {
-        type: Number
+    size_in_bytes: {
+        type: Number, 
+        required: true
     },
 
     public_id: {

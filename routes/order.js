@@ -59,6 +59,12 @@ router.post("/complete", async (req, res) => {
 
     let ids = order.items.map((it) => it.public_id);
 
+    // create download token for each item
+    let newItems = order.items.map(it=>{
+      return {...it, downloadToken: jwt.sign({ trackId: it.id}, `${process.env.SECRET_KEY}`)}
+    })
+    order.items = newItems;
+    await order.save()
     //let downloadUrl = await genDownloadUrl(ids)
     let downloadUrl =
       process.env.FRONTEND_URL + "/downloads/" + tunedbassOrderId;
