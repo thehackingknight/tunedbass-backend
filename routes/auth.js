@@ -4,6 +4,7 @@ const router = express.Router();
 const { ArtistModel } = require("../models/artist_model");
 const passport = require("passport");
 const multer = require("multer");
+const otpRouter = require("./auth/otp")
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -24,14 +25,15 @@ router.get("/check", async (req, res) => {
   }
 });
 router.post("/signup", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, account_type, address } = req.body;
   if (username && email && password) {
     const hashedPass = await bcrypt.hash(password, 10);
     const user = new ArtistModel();
     user.username = username;
-
+    if (address) user.address = address
     user.password = hashedPass;
     user.email = email;
+    user.account_type = account_type;
 
     try {
       await user.save();
@@ -71,4 +73,5 @@ router.post("/logout", (req, res) => {
   }
 });
 
+router.use("/otp", otpRouter)
 module.exports = router;

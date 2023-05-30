@@ -20,10 +20,17 @@ const ArtistSchema = new Schema({
         
     },
     artwork: String,
-  
+    is_verified: {
+        type: Boolean,
+        default: false
+    },
     tracks:{
         type: [Schema.Types.String],
     
+    },
+    account_type: {
+        type: String,
+        default: "normal"
     },
     orders: [],
     date_created: {
