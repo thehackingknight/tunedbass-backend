@@ -4,7 +4,9 @@ const router = express.Router();
 const { ArtistModel } = require("../models/artist_model");
 const passport = require("passport");
 const multer = require("multer");
-const otpRouter = require("./auth/otp")
+const otpRouter = require("./auth/otp");
+const { genOTP, sendMail } = require("../utils/functions");
+const { OTP_Model } = require("../models/models");
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -24,6 +26,7 @@ router.get("/check", async (req, res) => {
     res.status(401).json({ msg: "Incorrect credentials" });
   }
 });
+
 router.post("/signup", async (req, res) => {
   const { username, email, password, account_type, address } = req.body;
   if (username && email && password) {
@@ -37,7 +40,22 @@ router.post("/signup", async (req, res) => {
 
     try {
       await user.save();
-      res.send("Authentication successful");
+      let pin = await genOTP()
+      let otp = new OTP_Model()
+      otp.otp = pin;
+      otp.user = user.id;
+      await otp.save()
+      
+      let mail = ` <div>
+      <h1>Thank you for signing up with TunedBass Music!</h1>
+      <h3>Here is your one-time PIN.</h3>
+      <p class="otp">${otp.otp}</p>
+      <p>The PIN is <b>valid</b> for only <b>1 hour</b>.</p>
+    </div>`
+      let mailRes = await sendMail("TunedBass Music Signup", mail, user.email)
+      if (!mailRes) return  res.status(500).json({ msg: "Something went wrong" });
+      //SEND EMAIL
+      res.send(otp.id);
     } catch (err) {
       let erroMsg = "Internal Server Error";
       let { message } = err;

@@ -10,7 +10,7 @@ router.get("/:id", async (req, res) => {
   let otp = await OTP_Model.findById(id).exec();
   if (!otp) return res.status(404).send("OTP NOT FOUND");
 
-  res.send("GOOD");
+  res.send(otp.date_created);
 });
 router.post("/verify", multer().none(), async (req, res) => {
   // Recieves the otp as well as otp id
@@ -22,7 +22,7 @@ router.post("/verify", multer().none(), async (req, res) => {
   if (!otp) return res.status(404).send("OTP NOT FOUND");
 
   if (otp.otp == pin) {
-    let user = await ArtistModel.findById(id).exec();
+    let user = await ArtistModel.findById(otp.user).exec();
     if (!user) return res.status(404).send("USER NOT FOUND");
     user.is_verified = true;
     user.date_modified = new Date()

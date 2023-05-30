@@ -14,5 +14,5 @@ const OTP_Schema = new Schema({
 })
 
 const CarModel =model("car",  CarSchema )
-const OTP_Model =model("car",  OTP_Schema )
+const OTP_Model =model("otp",  OTP_Schema )
 module.exports = { CarModel, OTP_Model }

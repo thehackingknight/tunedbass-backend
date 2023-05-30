@@ -1,6 +1,7 @@
 const cloudinary = require("cloudinary").v2;
 
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
+const { OTP_Model } = require("../models/models");
 const checkAuthenticated = (req, res, next) =>{
     if(req.isAuthenticated()) return next()
     else res.status(401).json({msg:"AUTHENTICATION FAILED!"})
@@ -34,8 +35,9 @@ const checkAuthenticated = (req, res, next) =>{
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style type="text/css"> .TunedStreamz {
-              font: medium/ 1.5 Arial, Helvetica, sans-serif !important;
+            <style type="text/css">
+            .tb {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif  !important;
               margin: auto;
               padding: 10px;
               color: black;
@@ -81,7 +83,10 @@ const checkAuthenticated = (req, res, next) =>{
               background-color: #fd950d !important;
               border-color: #fd950d !important;
             }
-      
+      a{
+        color: #f08800 !important;
+        font-weight: 600 !important;
+      }
             table {
              
              
@@ -100,13 +105,26 @@ const checkAuthenticated = (req, res, next) =>{
             }
       
             tr:nth-child(even) {
-              background-color: #dddddd;
+              background-color: #e6e6e6;
             }
-            </style>
+      
+            .otp {
+              background-color: #c4c4c4;
+              border: 2px dashed #d37305;
+              padding: 10px;
+              border-radius: 5px;
+              width: 150px;
+              text-align: center;
+              font-weight: 700;
+              letter-spacing: 6;
+              font-family: monospace;
+              font-size: 20px;
+            }
+          </style>
         </head>
         <body>
 
-            <div class="TunedStreamz">
+            <div class="tb">
             ${body}
             <p>For support please contact us at <a href="mailto:${process.env.EMAIL}">${process.env.EMAIL}</a></p>
             </div>
@@ -132,8 +150,16 @@ const checkAuthenticated = (req, res, next) =>{
       api_secret: process.env.CLOUDINARY_SECRET,
     });
   }
-
+  function randomIntFromInterval(min, max) { // min and max included 
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
+  async function genOTP(){
+    let otp = randomIntFromInterval(100000, 999999)
+    let otpExists = await OTP_Model.findOne({ otp }).exec()
+    if (otpExists) await genOTP()
+    return otp
+ }
   const requestErr = (msg = "Something went wrong!") => {
     return { msg }
   }
-module.exports = {requestErr, checkAuthenticated, genUID, sendMail, configCloudinary }
+module.exports = {requestErr, checkAuthenticated, genUID, sendMail, configCloudinary, genOTP }
