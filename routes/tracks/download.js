@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const multer = require("multer");
+const https = require("https");
 const nodemailer = require("nodemailer");
 const cloudinary = require("cloudinary").v2;
 const { configCloudinary } = require("../../utils/functions");
-
+const { TrackModel } = require("../../models/track_model")
 let url = "";
 let html = `<html lang="en">
 <head>
@@ -75,20 +76,61 @@ let html = `<html lang="en">
 
 </body>
 </html>`;
-router.get("/", multer().none(), async (req, res) => {
-  let ids = "TunedBass/audio/TB-undefined-1684465825411-82265858";
+router.get("/:token", async (req, res) => {
+  let ids = ["TunedBass/Tonics/raw/audio/TB_My Land-by-Tonics-1685388801482-300948573"];
+  let { token } = req.params;
 
-  //configCloudinary();
+  configCloudinary();
   try {
-    let r = cloudinary.utils.download_zip_url({
-      public_ids: ids,
-      resource_type: "video",
-      mode: "download",
-    });
+    let jwtInfo = require("jsonwebtoken").verify(token, process.env.SECRET_KEY, { algorithms: ["HS256"]})
+    const { trackId} = jwtInfo
+    //return res.send("Pls wait")
+    let track = await TrackModel.findById(trackId).exec()
 
-    let decodeUrl = decodeURIComponent(r)
-    console.log(decodeUrl);
-    res.send(r);
+    if (track){
+      let url = track.url;
+      let { range } = req.headers;
+    if (true) {
+      range = range ? range : "bytes=0-"
+      // @ts-ignore
+      let total = 1384559//Math.floor((1024*1024) * 12.2)
+      
+      const parts = range.replace(/bytes=/, '').split('-');
+      const partialStart = parts[0];
+      const partialEnd = parts[1];
+      const start = parseInt(partialStart, 10);
+      const end = partialEnd ? parseInt(partialEnd, 10) : total - 1;
+      const chunksize = (end - start) + 1;
+      // Create headers
+      const headers = {
+          'Content-Range': 'bytes ' + start + '-' + end + '/' + total,                                   //"Content-Range": `bytes ${start}-${end}/${total}`,
+                         'Accept-Ranges': 'bytes', 'Content-Length': chunksize,                                   //"Accept-Ranges": "bytes",
+                         'Content-Type': 'audio/mpeg' ,
+                         'Content-disposition': `attachment; filename=TunedBass_-_${track.title}.mp3`                          //"Content-Length": contentLength,
+      };
+      //res.setHeader('Content-disposition', 'attachment; filename=My Land.mp3')
+      // HTTP Status 206 for Partial Content
+      res.writeHead(206, headers);
+      //rstream.pipe(res)
+      // @ts-ignore
+      https.get(url, (stream) => {
+        stream.pipe(res);
+        stream.on("end", (_) =>{
+
+          res.end()
+        });
+      });
+    }
+    else{
+      console.log("No range");
+      res.status(400).send("Provide range")
+    }
+    }
+   /*  let r = cloudinary.utils.download_zip_url({
+      public_ids: ids,
+      resource_type: "raw",
+      mode: "download",
+    }); */
   } catch (e) {
     console.log(e);
     res.status(500).send();

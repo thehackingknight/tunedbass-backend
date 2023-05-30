@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const { ArtistModel, ArtistSchema } = require("./artist_model");
 
 const TrackSchema = new Schema({
     title: {
@@ -17,6 +16,9 @@ const TrackSchema = new Schema({
     duration: {
         type: String,
         required: true
+    },
+    sizeInBytes: {
+        type: Number
     },
 
     public_id: {

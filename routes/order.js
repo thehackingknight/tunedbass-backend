@@ -1,16 +1,20 @@
 const Order = require("../models/order");
 const { TrackModel } = require("../models/track_model");
-const { requestErr, configCloudinary, sendMail } = require("../utils/functions");
+const {
+  requestErr,
+  configCloudinary,
+  sendMail,
+} = require("../utils/functions");
 const cloudinary = require("cloudinary").v2;
 const router = require("express").Router();
-
+const jwt = require("jsonwebtoken");
 router.get("/", async (req, res) => {
   const { orderId } = req.query;
 
   if (orderId) {
     try {
       let order = await Order.findById(orderId).exec();
-      res.json({ order: order.toJSON() });
+      res.json({ order: order.toObject() });
     } catch (err) {
       console.log(err);
       res
@@ -20,41 +24,46 @@ router.get("/", async (req, res) => {
   } else {
     try {
       let orders = await Order.find().exec();
-      res.json({ orders: orders.toJSON() });
+      orders = orders.map( order => order.toObject())
+      res.json({ orders });
     } catch (e) {
       console.log(e);
       res.status(500).json(requestErr());
     }
   }
 });
-const genDownloadUrl = async (ids) => { 
-    configCloudinary()
-    let r = cloudinary.utils.download_zip_url({
-        public_ids: ids,
-        resource_type: "video",
-        mode: "download",
-      });
-      return r
- }
+const genDownloadUrl = async (ids) => {
+  configCloudinary();
+  let r = cloudinary.utils.download_zip_url({
+    public_ids: ids,
+    resource_type: "video",
+    mode: "download",
+  });
+  return r;
+};
 router.post("/complete", async (req, res) => {
   let { order_id, details } = req.body;
 
   try {
     // Find the order by provided order_id
     let order = await Order.findById(order_id).exec();
+    if (!order) return res.status(404).json(requestErr("Order not found"));
     order.paypal_details = JSON.parse(details);
     order.last_modified = new Date();
-    order.save();
-  
-    let orderTotal = `$${order.total.toFixed(2)}`
-    let paypalOrderId = order.paypal_details.id
-    let status = order.paypal_details.status
-    let tunedbassOrderId = order.id
+    await order.save();
 
-    let ids = order.items.map(it => it.public_id)
-    
-    let downloadUrl = await genDownloadUrl(ids)
-    let refreshUrl = process.env.ORIGIN + "order/refresh-download?orderId=" + tunedbassOrderId
+    let orderTotal = `$${order.total.toFixed(2)}`;
+    let paypalOrderId = order.paypal_details.id;
+    let status = order.paypal_details.status;
+    let tunedbassOrderId = order.id;
+
+    let ids = order.items.map((it) => it.public_id);
+
+    //let downloadUrl = await genDownloadUrl(ids)
+    let downloadUrl =
+      process.env.FRONTEND_URL + "/downloads/" + tunedbassOrderId;
+    let refreshUrl =
+      process.env.ORIGIN + "order/refresh-download?orderId=" + tunedbassOrderId;
     let mailBody = `<div>
     <h1>Your order has been processed successfully!</h1>
 
@@ -93,18 +102,24 @@ router.post("/complete", async (req, res) => {
 
    
   </div>
-  `
-    let mailRes = await sendMail("TunedBass order complete", mailBody,order.creator.email)
-    if (!mailRes) throw new Error("Could not send email")
+  `;
+    let mailRes = await sendMail(
+      "TunedBass order complete",
+      mailBody,
+      order.creator.email
+    );
+    if (!mailRes) throw new Error("Could not send email");
 
-    for (let it of order.items){
-      let track = await TrackModel.findById(it.id).exec()
-      track.sold = true
-      track.save()
+    for (let it of order.items) {
+      let track = await TrackModel.findById(it.id).exec();
+      if (track) {
+        track.sold = true;
+        await track.save();
+      }
     }
-    order.complete = true
-    order.save()
-    res.send('ok')
+    order.complete = true;
+    await order.save();
+    res.send("ok");
   } catch (err) {
     console.log(err);
     res.status(500).json(requestErr());
@@ -131,7 +146,7 @@ router.post("/create", async (req, res) => {
         throw err;
       }
     }
-    order.items = items
+    order.items = items;
     order.total = total;
     order.save();
     res.send(order.id);
