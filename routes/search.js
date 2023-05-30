@@ -10,13 +10,12 @@ router.get("/", async function (req, res, next) {
 
     let tracks = await TrackModel.find({
       tags: { $in: [new RegExp(`${q}`)]},
-      //title: { $regex: q, $options: "i" },
     }).exec();
     tracks = tracks.concat(await TrackModel.find({
-      title: { $regex: q, $options: "i" },
+      title: { $regex: q },
     }).exec())
 
-    let artists = [] //await ArtistModel.find({    username: { $regex: q, $options: "i" }, }).exec();
+    let artists = [] 
     let _tracks = [];
     let _artists = [];
 
