@@ -49,6 +49,7 @@ router.post("/signup", async (req, res) => {
       let otp = new OTP_Model()
       otp.otp = pin;
       otp.user = user.id;
+      otp.date_created = Date.now()
       await otp.save()
       
       let mail = ` <div>

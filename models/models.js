@@ -9,7 +9,7 @@ const OTP_Schema = new Schema({
     user: {type: String, required: true},
     date_created: {
         type: Number,
-        default: Date.now()
+        required: true
     }
 })
 
