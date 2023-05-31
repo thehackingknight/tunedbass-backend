@@ -12,11 +12,11 @@ const init = (passport) => {
       .then(async (user) => {
         if (user == null)
           return done(null, false, { msg: "User not found" });
+        if (!user.is_verified) return done(null, false, { msg: "User not verified" });
 
         try {
           if (await bcrypt.compare(password, user.password)) {
             console.log("Suceess");
-            console.log(done);
             return done(null, user);
           } else {
             return done(null, false, { msg: "Password incorrect" });

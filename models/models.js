@@ -5,11 +5,11 @@ const CarSchema = new Schema({
     speed: Number
 })
 const OTP_Schema = new Schema({
-    otp: {type: Number, required: true},
+    otp: {type: Number, required: true, unique: true},
     user: {type: String, required: true},
     date_created: {
-        type: Date,
-        default: new Date()
+        type: Number,
+        default: Date.now()
     }
 })
 

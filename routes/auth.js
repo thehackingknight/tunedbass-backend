@@ -30,6 +30,11 @@ router.get("/check", async (req, res) => {
 router.post("/signup", async (req, res) => {
   const { username, email, password, account_type, address } = req.body;
   if (username && email && password) {
+
+    let userWithSameCredentials = await ArtistModel.findOne({ username, email}).exec()
+    if (userWithSameCredentials && !userWithSameCredentials.is_verified) {
+      await ArtistModel.findByIdAndDelete(userWithSameCredentials.id).exec()
+    }
     const hashedPass = await bcrypt.hash(password, 10);
     const user = new ArtistModel();
     user.username = username;
@@ -55,7 +60,7 @@ router.post("/signup", async (req, res) => {
       let mailRes = await sendMail("TunedBass Music Signup", mail, user.email)
       if (!mailRes) return  res.status(500).json({ msg: "Something went wrong" });
       //SEND EMAIL
-      res.send(otp.id);
+      res.send(otp.user);
     } catch (err) {
       let erroMsg = "Internal Server Error";
       let { message } = err;
