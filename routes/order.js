@@ -1,5 +1,6 @@
 const Order = require("../models/order");
 const { TrackModel } = require("../models/track_model");
+const { ArtistModel } = require("../models/artist_model");
 const {
   requestErr,
   configCloudinary,
@@ -109,10 +110,12 @@ router.post("/complete", async (req, res) => {
    
   </div>
   `;
-    let mailRes = await sendMail(
-      "TunedBass order complete",
+
+  let creator = await ArtistModel.findById(order.creator).exec()
+  if (!creator) {return res.status(400).json({msg: "ORDER CREATOR NOT FOUND"})};
+    let mailRes = await sendMail("TunedBass order complete",
       mailBody,
-      order.creator.email
+      creator.email
     );
     if (!mailRes) throw new Error("Could not send email");
 
