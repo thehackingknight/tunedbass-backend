@@ -50,7 +50,7 @@ const corsOptions = {
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
  app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: '*',//process.env.FRONTEND_URL,
   credentials: true
 }))
 
@@ -61,7 +61,7 @@ app.use(session({
   saveUninitialized: false
 }))
 app.use(passport.initialize())
-app.use(passport.session())
+app.use(passport.session()) 
 initPassport(passport)
 /* --------------- END PASSPORT -----------------------*/
 /*------------------ mongodb ----------------------- */

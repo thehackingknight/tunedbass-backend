@@ -142,6 +142,7 @@ router.post("/create", async (req, res) => {
     items = JSON.parse(items);
     let order = new Order();
     let user = await req.user.exec()
+    await Order.findOneAndRemove({ creator: user.id, complete: false}).exec()
     order.creator = user.id;
     
     let total = 0;
