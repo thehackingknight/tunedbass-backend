@@ -3,8 +3,8 @@ const multer = require("multer");
 const {
   requestErr,
 } = require("../../utils/functions");
-const { TrackModel } = require("../../models/track_model");
-const { ArtistModel } = require("../../models/artist_model");
+const { Track } = require("../../models/track");
+const { User } = require("../../models/user");
 
 const router = express.Router();
 
@@ -35,10 +35,10 @@ router.post("/", upload.none(), async (req, res) => {
     //if (true){
     try {
       req.user.then(async (user) => {
-        //ArtistModel.findOne({ username: "Tonics" }).then(async (user) => {
+        //User.findOne({ username: "Tonics" }).then(async (user) => {
         album = album ? album : "Single";
           // Save to db
-          let track = new TrackModel();
+          let track = new Track();
           track.title = title;
           track.price = parseFloat(price);
           track.artist = user.id.toString();

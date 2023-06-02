@@ -1,6 +1,6 @@
 const Order = require("../models/order");
-const { TrackModel } = require("../models/track_model");
-const { ArtistModel } = require("../models/artist_model");
+const { TrackModel } = require("../models/track");
+const { ArtistModel } = require("../models/user");
 const {
   requestErr,
   configCloudinary,

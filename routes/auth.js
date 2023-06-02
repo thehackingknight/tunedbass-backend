@@ -1,9 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
-const { ArtistModel } = require("../models/artist_model");
+const { User } = require("../models/user");
 const passport = require("passport");
 const multer = require("multer");
+const jwt = require('jsonwebtoken')
 const otpRouter = require("./auth/otp");
 const { genOTP, sendMail } = require("../utils/functions");
 const { OTP_Model } = require("../models/models");
@@ -16,12 +17,10 @@ router.get("/login", function (req, res, next) {
   res.render("auth/login", { title: "Express" });
 });
 
-router.get("/check", async (req, res) => {
+router.get("/check", passport.authenticate("jwt"), async (req, res) => {
   let isAuthenticated = req.isAuthenticated();
   if (isAuthenticated) {
-    req.user.then((usr) => {
-      res.status(200).json({ user: usr });
-    });
+      res.status(200).json({ user: req.user });
   } else {
     res.status(401).json({ msg: "Incorrect credentials" });
   }
@@ -31,12 +30,12 @@ router.post("/signup", async (req, res) => {
   const { username, email, password, account_type, address } = req.body;
   if (username && email && password) {
 
-    let userWithSameCredentials = await ArtistModel.findOne({ username, email}).exec()
+    let userWithSameCredentials = await User.findOne({ username, email}).exec()
     if (userWithSameCredentials && !userWithSameCredentials.is_verified) {
-      await ArtistModel.findByIdAndDelete(userWithSameCredentials.id).exec()
+      await User.findByIdAndDelete(userWithSameCredentials.id).exec()
     }
     const hashedPass = await bcrypt.hash(password, 10);
-    const user = new ArtistModel();
+    const user = new User();
     user.username = username;
     if (address) user.address = address
     user.password = hashedPass;
@@ -78,12 +77,23 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post(
-  "/login",
-  passport.authenticate("local"),
-  async (req, res, next) => {
-    res.send("AUTH SUCCESSFUL!");
+router.post("/login", async (req, res)=>{
+  try{
+
+    const { email, password} = req.body
+    let user = await User.findOne({ email }).exec()
+    if (!user) return res.status(401).json({ msg: "No user found with the specified email"})
+    if (await bcrypt.compare(password, user.password)) {
+     let token = jwt.sign(user.id, process.env.SECRET_KEY)
+      return res.send(token)
+    } else {
+      return res.status(401).json({ msg: "Password incorrect" });
+    }
+  }catch(e){  
+    console.log(e);
+    res.status(500).json({msg: "Something went wrong"})
   }
+}
 );
 
 router.post("/logout", (req, res) => {

@@ -66,6 +66,6 @@ const TrackSchema = new Schema({
 })
 
 
-const TrackModel =model("Track",  TrackSchema )
+const Track =model("Track",  TrackSchema )
 
-module.exports = { TrackModel}
+module.exports = { Track}

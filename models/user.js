@@ -1,6 +1,6 @@
 
 const { Schema, model, default: mongoose, MongooseError } = require("mongoose");
-const ArtistSchema = new Schema({
+const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -44,5 +44,5 @@ const ArtistSchema = new Schema({
     },
 
 })
-const ArtistModel = model("Artist", ArtistSchema )
-module.exports = { ArtistModel} 
+const User = model("User", UserSchema )
+module.exports = { User} 

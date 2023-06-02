@@ -1,6 +1,6 @@
 const multer = require("multer");
 const { OTP_Model } = require("../../models/models");
-const { ArtistModel } = require("../../models/artist_model");
+const { ArtistModel } = require("../../models/user");
 const { genOTP, sendMail } = require("../../utils/functions");
 
 const router = require("express").Router();

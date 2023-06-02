@@ -4,7 +4,7 @@ const https = require("https");
 const nodemailer = require("nodemailer");
 const cloudinary = require("cloudinary").v2;
 const { configCloudinary } = require("../../utils/functions");
-const { TrackModel } = require("../../models/track_model")
+const { Track } = require("../../models/track")
 let url = "";
 let html = `<html lang="en">
 <head>
@@ -88,7 +88,7 @@ router.get("/:token", async (req, res) => {
 
     //console.log(jwtInfo);
     //return res.send("Pls wait")
-    let track = await TrackModel.findById(trackId).exec()
+    let track = await Track.findById(trackId).exec()
 
     if (track){
       let url = track.url;

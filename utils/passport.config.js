@@ -1,16 +1,17 @@
-const { ArtistModel } = require("../models/artist_model");
+const { User } = require("../models/user");
 const bcrypt = require("bcrypt");
 const LocalStrategy = require("passport-local").Strategy;
-
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 
 const init = (passport) => {
   const authenticateUser = async (username, password, done) => {
-    let userQuery = ArtistModel.findOne({ email: username });
+    let userQuery = User.findOne({ email: username });
     userQuery
       .then(async (user) => {
-        if (user == null)
-          return done(null, false, { msg: "User not found" });
-        if (!user.is_verified) return done(null, false, { msg: "User not verified" });
+        if (user == null) return done(null, false, { msg: "User not found" });
+        if (!user.is_verified)
+          return done(null, false, { msg: "User not verified" });
 
         try {
           if (await bcrypt.compare(password, user.password)) {
@@ -30,19 +31,29 @@ const init = (passport) => {
     /*
      */
   };
+
+  let opts = {};
+  opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+  opts.secretOrKey = process.env.SECRET_KEY;
   passport.use(
-    new LocalStrategy(
-      {
-        usernameField: "email",
-        passwordField: "password",
-      },
-      authenticateUser
-    )
+    new JwtStrategy(opts, async function (jwt_payload, done) {
+      try {
+        const user = await User.findOne({ id: jwt_payload.sub }).exec();
+        if (user) {
+          return done(null, user);
+        } else {
+          return done(null, false);
+          // or you could create a new account
+        }
+      } catch (e) {
+        return done(e, false);
+      }
+    })
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser((id, done) => {
-    let userById = ArtistModel.findById(id);
+    let userById = User.findById(id);
     return done(null, userById);
   });
 };

@@ -1,5 +1,5 @@
-const { ArtistModel } = require("../../models/artist_model");
-const { TrackModel } = require("../../models/track_model");
+const { User } = require("../../models/user");
+const { Track } = require("../../models/track");
 const { requestErr } = require("../../utils/functions");
 const fs = require("fs");
 const router = require("express").Router();
@@ -8,7 +8,7 @@ router.post("/share", async (req, res) => {
     try {
         const { trackId, visitorId } = req.body;
         try {
-            let track  = await TrackModel.findById(trackId).exec()
+            let track  = await Track.findById(trackId).exec()
             track.shares.push(visitorId)
             track.save()
             res.send({msg: "Share added to track"})
@@ -26,7 +26,7 @@ router.post("/play", async (req, res) => {
   try {
     const { trackId, visitorId } = req.body;
     try {
-        let track  = await TrackModel.findById(trackId).exec()
+        let track  = await Track.findById(trackId).exec()
         track.plays.push(visitorId)
         track.save()
         res.send({msg: "Play added to track"})

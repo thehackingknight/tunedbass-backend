@@ -22,7 +22,6 @@ const passport = require("passport")
 const session = require("express-session");
 const multer = require('multer');
 const cors = require('cors');
-const cookieSession = require('cookie-session');
 
 
 const app = express();
@@ -39,12 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieSession({
-  maxAge: 24 * 60 * 60 * 1000, //1 day
-  keys: [
-    process.env.SECRET_KEY
-  ]
-}))
+
 const corsOptions = {
   headers: [
     { key: "Access-Control-Allow-Credentials", value: "true" },
@@ -67,7 +61,7 @@ app.use(cors())
   saveUninitialized: false
 }))*/
 app.use(passport.initialize())
-app.use(passport.session()) 
+//app.use(passport.session()) 
 initPassport(passport)
 /* --------------- END PASSPORT -----------------------*/
 

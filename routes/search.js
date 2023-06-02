@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { TrackModel } = require("../models/track_model");
+const { TrackModel } = require("../models/track");
 const { checkAuthenticated, requestErr } = require("../utils/functions");
-const { ArtistModel } = require("../models/artist_model");
+const { ArtistModel } = require("../models/user");
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   try {

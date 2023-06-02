@@ -1,6 +1,6 @@
 const multer = require("multer");
-const { TrackModel } = require("../models/track_model");
-const { ArtistModel } = require("../models/artist_model");
+const { Track } = require("../models/track");
+const { User } = require("../models/user");
 const { requestErr } = require("../utils/functions");
 
 const router = require("express").Router()
@@ -13,12 +13,12 @@ router.post("/", multer().none(), async ( req, res ) =>{
         let data = []
 
         for (let id of cart.items){
-            let item = await TrackModel.findById(id).exec().catch(er=>{
+            let item = await Track.findById(id).exec().catch(er=>{
                 console.log(er);
             })
 
             if (item) {
-                let artist = await ArtistModel.findById(item.artist).exec().catch(er=>{
+                let artist = await User.findById(item.artist).exec().catch(er=>{
                     console.log(er);
                 })
                 if (artist){

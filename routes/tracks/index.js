@@ -3,8 +3,8 @@ const router = express.Router();
 const modifyRouter = require("./modify");
 const uploadRouter = require("./upload");
 const downloadRouter = require("./download");
-const { TrackModel } = require("../../models/track_model");
-const { ArtistModel } = require("../../models/artist_model");
+const { Track } = require("../../models/track");
+const { User } = require("../../models/user");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
@@ -24,9 +24,9 @@ router.get("/ep/:endpoint", async (req, res) => {
 
   if (endpoint == "related") {
     try {
-      let refTrack = await TrackModel.findById(ref).exec();
+      let refTrack = await Track.findById(ref).exec();
       let tagsRegex = refTrack?.tags.map((tag) => new RegExp(tag.trim()));
-      let tracks = await TrackModel.find({
+      let tracks = await Track.find({
         tags: {
           $in: tagsRegex,
         },
@@ -37,7 +37,7 @@ router.get("/ep/:endpoint", async (req, res) => {
       tracks = tracks.filter((it) => it.id !== refTrack.id);
       let data = [];
       for (let track of tracks) {
-        let artist = await ArtistModel.findById(
+        let artist = await User.findById(
           track?.artist.toString()
         ).exec();
         if (!artist?.username) {
@@ -69,16 +69,17 @@ const corsOptions = {
 };
 router.get("/", async (req, res) => {
   const { id } = req.query;
+  console.log("GEYS");
   let tracks;
   try {
     if (id) {
-      let track = await TrackModel.findById(id).exec();
+      let track = await Track.findById(id).exec();
       tracks = [track];
       if (!track) {
         return res.status(404).json(requestErr("Track not found"));
       }
     } else {
-      tracks = await TrackModel.find().exec();
+      tracks = await Track.find().exec();
     }
   } catch (e) {
     console.log(e);
@@ -90,7 +91,7 @@ router.get("/", async (req, res) => {
 
   try {
     for (let track of tracks) {
-      let artist = await ArtistModel.findById(track?.artist.toString()).exec();
+      let artist = await User.findById(track?.artist.toString()).exec();
       if (!artist?.username) {
         continue;
       }
@@ -115,9 +116,9 @@ router.get("/", async (req, res) => {
 router.post("/delete", async (req, res) => {
   const { id } = req.body;
   try {
-    let track = await TrackModel.findById(id).exec();
+    let track = await Track.findById(id).exec();
     if (track) {
-      await TrackModel.findOneAndRemove({}).exec();
+      await Track.findOneAndRemove({}).exec();
       console.log("Removed ", track.title);
       // Delete file from cloudinary
       configCloudinary();
@@ -125,7 +126,7 @@ router.post("/delete", async (req, res) => {
         resource_type: "video",
       });
       // Removing from artist track list
-      let artist = await ArtistModel.findById(track.artist).exec();
+      let artist = await User.findById(track.artist).exec();
       if (artist) {
         artist.tracks = artist.tracks.filter((it) => it !== track.id);
         artist.save();
