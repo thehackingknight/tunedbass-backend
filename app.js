@@ -50,7 +50,7 @@ const corsOptions = {
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
  app.use(cors({
-  origin: '*',//process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }))
 
@@ -90,6 +90,9 @@ app.use('/search',searchRouter);
 app.use('/video',videoRouter);
 app.use('/cart',cartRouter);
 app.use('/order', parser, orderRouter);
+app.get("/library", (req, res)=>{
+  res.render("library")
+})
 //app.use('/tracks/upload', uploadRouter);
 
 // catch 404 and forward to error handler
