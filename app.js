@@ -22,6 +22,7 @@ const passport = require("passport")
 const session = require("express-session");
 const multer = require('multer');
 const cors = require('cors');
+const cookieSession = require('cookie-session');
 
 
 const app = express();
@@ -38,32 +39,40 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
+app.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000, //1 day
+  keys: [
+    process.env.SECRET_KEY
+  ]
+}))
 const corsOptions = {
   headers: [
     { key: "Access-Control-Allow-Credentials", value: "true" },
     { key: "Access-Control-Allow-Origin", value: "*" },
     // ...
   ],
-  origin: "*",
+  origin: null,
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
+
+app.use(cors()) 
  app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }))
-
 /* --------------- PASSPORT -----------------------*/
-app.use(session({
+/*app.use(session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: false
-}))
+}))*/
 app.use(passport.initialize())
 app.use(passport.session()) 
 initPassport(passport)
 /* --------------- END PASSPORT -----------------------*/
+
+
+
 /*------------------ mongodb ----------------------- */
 async function connectMongo(){
   let mongoURL = process.env.MONGO_URL

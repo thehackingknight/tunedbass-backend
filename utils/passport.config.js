@@ -2,9 +2,7 @@ const { ArtistModel } = require("../models/artist_model");
 const bcrypt = require("bcrypt");
 const LocalStrategy = require("passport-local").Strategy;
 
-const getUserByEmail = async (email) => {
-  ArtistModel.findOne({ email });
-};
+
 const init = (passport) => {
   const authenticateUser = async (username, password, done) => {
     let userQuery = ArtistModel.findOne({ email: username });
