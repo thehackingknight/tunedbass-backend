@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { ArtistModel } = require("../../models/user");
-const { TrackModel } = require("../../models/track");
+const { User } = require("../../models/user");
+const { Track } = require("../../models/track");
 const { requestErr} = require("../../utils/functions")
 const jwt = require("jsonwebtoken");
 
@@ -9,23 +9,23 @@ router.get("/", async (req, res) => {
 
   let data;
   if (username) {
-    data = await ArtistModel.findOne({ username }).exec();
+    data = await User.findOne({ username }).exec();
     if (!data) return res.status(404).json(requestErr("User with specified username not found"))
     let tracks = [];
     let plays = 0, likes = 0, shares = 0;
     for (let trackId of data.tracks) { // Clean up each track
         
-      let track = await TrackModel.findById(trackId).exec();
+      let track = await Track.findById(trackId).exec();
       plays += track.plays.length;
       likes += track.likes.length;
       shares += track.shares.length;
-      let hashedURL = jwt.sign(track.url, process.env.SECRET_KEY);
-      track = { ...track.toObject(), id: track.id, artist: data.toObject(), url: hashedURL };
+      //let hashedURL = jwt.sign(track.url, process.env.SECRET_KEY);
+      track = { ...track.toObject(), id: track.id, artist: data.toObject() };
       tracks.push(track)
     }
     data = { ...data.toObject(), id: data.id, tracks, plays, likes, shares };
   } else {
-    data = await ArtistModel.find().exec();
+    data = await User.find().exec();
     data = data.map((it) => {
       return { ...it.toObject(), id: it.id };
     });
@@ -36,11 +36,11 @@ router.get("/", async (req, res) => {
 
 router.post("/delete", async (req, res) => {
   const { username } = req.body;
-  ArtistModel.findOneAndRemove({ username }).then((user) => {
+  User.findOneAndRemove({ username }).then((user) => {
     if (user) {
       // Delete tracks uploaded by this user
       user.tracks.forEach((it) => {
-        TrackModel.findByIdAndRemove(it).then((r) => {
+        Track.findByIdAndRemove(it).then((r) => {
           if (r) console.log("Removed Track: " + r.title);
         });
       });
