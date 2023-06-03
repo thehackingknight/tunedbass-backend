@@ -1,6 +1,8 @@
+const passport = require("passport");
 const Order = require("../models/order");
-const { TrackModel } = require("../models/track");
-const { ArtistModel } = require("../models/user");
+const { Track } = require("../models/track");
+const { User } = require("../models/user");
+
 const {
   requestErr,
   configCloudinary,
@@ -42,7 +44,7 @@ const genDownloadUrl = async (ids) => {
   });
   return r;
 };
-router.post("/complete", async (req, res) => {
+router.post("/complete",passport.authenticate("jwt"), async (req, res) => {
   let { order_id, details } = req.body;
 
   try {
@@ -111,7 +113,7 @@ router.post("/complete", async (req, res) => {
   </div>
   `;
 
-  let creator = await ArtistModel.findById(order.creator).exec()
+  let creator = await User.findById(order.creator).exec()
   if (!creator) {return res.status(400).json({msg: "ORDER CREATOR NOT FOUND"})};
     let mailRes = await sendMail("TunedBass order complete",
       mailBody,
@@ -120,7 +122,7 @@ router.post("/complete", async (req, res) => {
     if (!mailRes) throw new Error("Could not send email");
 
     for (let it of order.items) {
-      let track = await TrackModel.findById(it.id).exec();
+      let track = await Track.findById(it.id).exec();
       if (track) {
         track.sold = true;
         await track.save();
@@ -134,14 +136,14 @@ router.post("/complete", async (req, res) => {
     res.status(500).json(requestErr());
   }
 });
-router.post("/create", async (req, res) => {
+router.post("/create", passport.authenticate("jwt"), async (req, res) => {
 
   if (!req.user) return res.status(401).json({msg: "Please login to create an order"})
   try {
     let {  items } = req.body;
     items = JSON.parse(items);
     let order = new Order();
-    let user = await req.user.exec()
+    let {user} = req
     await Order.findOneAndRemove({ creator: user.id, complete: false}).exec()
     order.creator = user.id;
     

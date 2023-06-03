@@ -24,7 +24,7 @@ router.get("/check", passport.authenticate("jwt"), async (req, res) => {
   } else {
     res.status(401).json({ msg: "Incorrect credentials" });
   }
-});
+}); 
 
 router.post("/signup", async (req, res) => {
   const { username, email, password, account_type, address } = req.body;

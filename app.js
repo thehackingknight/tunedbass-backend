@@ -65,8 +65,6 @@ app.use(passport.initialize())
 initPassport(passport)
 /* --------------- END PASSPORT -----------------------*/
 
-
-
 /*------------------ mongodb ----------------------- */
 async function connectMongo(){
   let mongoURL = process.env.MONGO_URL
