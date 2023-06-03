@@ -5,6 +5,7 @@ const {
 } = require("../../utils/functions");
 const { Track } = require("../../models/track");
 const { User } = require("../../models/user");
+const passport = require("passport");
 
 const router = express.Router();
 
@@ -13,10 +14,10 @@ router.get("/", function (req, res) {
   res.send("endpoint working");
 });
 let upload = multer()
-router.post("/", upload.none(), async (req, res) => {
+router.post("/",passport.authenticate("jwt"), upload.none(), async (req, res) => {
   let {
     title,
-    album,
+    album, 
     release_date,
     duration,
     is_beat,
@@ -34,8 +35,8 @@ router.post("/", upload.none(), async (req, res) => {
   if (req.user) {
     //if (true){
     try {
-      req.user.then(async (user) => {
-        //User.findOne({ username: "Tonics" }).then(async (user) => {
+        const { user } = req
+      //User.findOne({ username: "Tonics" }).then(async (user) => {
         album = album ? album : "Single";
           // Save to db
           let track = new Track();
@@ -64,7 +65,6 @@ router.post("/", upload.none(), async (req, res) => {
             res.status(500).json(requestErr());
           }
         
-      });
     } catch (err) {
       console.log(err);
       res.status(500).json(requestErr());

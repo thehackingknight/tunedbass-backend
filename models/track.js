@@ -27,6 +27,7 @@ const TrackSchema = new Schema({
         required: true
     },
     album: String,
+    description: String,
     genre: String,
     artwork: {type: String, default: "https://res.cloudinary.com/sketchi/image/upload/v1642950989/TunedBass/images/mp3-download-icon-10_nsmdjt.png"},
     url: {

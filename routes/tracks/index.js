@@ -69,7 +69,6 @@ const corsOptions = {
 };
 router.get("/", async (req, res) => {
   const { id } = req.query;
-  console.log("GEYS");
   let tracks;
   try {
     if (id) {
