@@ -1,6 +1,6 @@
 const multer = require("multer");
 const { OTP_Model } = require("../../models/models");
-const { ArtistModel } = require("../../models/user");
+const { User } = require("../../models/user");
 const { genOTP, sendMail } = require("../../utils/functions");
 
 const router = require("express").Router();
@@ -17,7 +17,7 @@ router.get("/:id/request", async (req, res) => {
   const { id } = req.params;
 
   try {
-    let user = await ArtistModel.findById(id).exec();
+    let user = await User.findById(id).exec();
     if (!user) return res.status(404).send("OWNER NOT FOUND");
 
     let pin = await genOTP()
@@ -52,7 +52,7 @@ router.post("/verify", async (req, res) => {
   if (!otp) return res.status(404).send("OTP NOT FOUND");
 
   if (otp.otp == pin) {
-    let user = await ArtistModel.findById(otp.user).exec();
+    let user = await User.findById(otp.user).exec();
     if (!user) return res.status(404).send("USER NOT FOUND");
     user.is_verified = true;
     user.date_modified = new Date()
