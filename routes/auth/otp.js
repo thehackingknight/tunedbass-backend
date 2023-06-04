@@ -10,7 +10,6 @@ router.get("/:id", async (req, res) => {
 
   let otp = await OTP_Model.findOne({user: id}).exec();
   if (!otp) return res.status(404).send("OTP NOT FOUND");
-
   res.send(`${otp.date_created}`);
 });
 router.get("/:id/request", async (req, res) => {

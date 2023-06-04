@@ -83,7 +83,7 @@ router.post("/login", async (req, res)=>{
     const { email, password} = req.body
     let user = await User.findOne({ email }).exec()
     if (!user) return res.status(401).json({ msg: "No user found with the specified email"})
-    console.log(user.username)
+    if (!user.is_verified) return res.status(400).json({ msg: "Please verify your account or signup to continue"})
     if (await bcrypt.compare(password, user.password)) {
      let token = jwt.sign({id: user.id, exp: Date.now() + (24 * 60 * 60 *1000)}, process.env.SECRET_KEY)
       return res.send(token)

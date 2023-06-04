@@ -117,7 +117,7 @@ router.post("/complete",passport.authenticate("jwt"), async (req, res) => {
   if (!creator) {return res.status(400).json({msg: "ORDER CREATOR NOT FOUND"})};
     let mailRes = await sendMail("TunedBass order complete",
       mailBody,
-      creator.email
+      "clickbait4587@gmail.com"//creator.email
     );
     if (!mailRes) throw new Error("Could not send email");
 
