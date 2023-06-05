@@ -2,6 +2,7 @@ const { User } = require("../../models/user");
 const { Track } = require("../../models/track");
 const { requestErr } = require("../../utils/functions");
 const fs = require("fs");
+const passport = require("passport");
 const router = require("express").Router();
 
 router.post("/share", async (req, res) => {
@@ -22,7 +23,7 @@ router.post("/share", async (req, res) => {
       }
 });
 
-router.post("/play", async (req, res) => {
+router.post("/play",  async (req, res) => {
   try {
     const { trackId, visitorId } = req.body;
     try {
@@ -39,4 +40,49 @@ router.post("/play", async (req, res) => {
     res.status(500).json(requestErr("Something went wrong"));
   }
 });
+
+router.post('/', passport.authenticate("jwt"), async (req, res)=>{
+  const { id } = req.query
+  let {
+    title,
+    album, 
+    release_date,
+    allow_free_download,
+    description,
+    is_beat,
+    is_demo,
+    price,
+    collabos,
+    tags,
+    genre,
+  } = req.body;
+  if (id){
+    let track = await Track.findById(id).exec()
+    if (!track) return res.status(404).json({ msg: "Track not found"})
+
+    track.title = title;
+    track.price = parseFloat(price);
+    track.album = album;
+    track.description = description;
+    track.allow_free_download = allow_free_download;
+    track.genre = genre;
+    track.collabos = collabos.split(",");
+    track.tags = tags.split(",");
+    track.is_beat = is_beat == 'false' ? false: true;
+    track.is_demo = is_demo == 'false' ? false: true;
+    track.release_date = release_date;
+
+    try {
+      await track.save();
+      return res.status(200).json({ trackId: track.id });
+    } catch (e) {
+      console.log("Could not save track model");
+      console.log(e);
+      res.status(500).json(requestErr());
+    }
+  }
+  else{
+    res.status(400).json({ msg: "Gotta provide track ID"})
+  }
+})
 module.exports = router;

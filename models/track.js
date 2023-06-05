@@ -10,7 +10,7 @@ const TrackSchema = new Schema({
         required: true,
     },
     price: {
-        type: Schema.Types.Number,
+        type: Number,
         default: 0
     },
     duration: {
@@ -44,6 +44,10 @@ const TrackSchema = new Schema({
         default: true
     },
     is_demo: { // Not yet released. Just a sample
+        type: Schema.Types.Boolean,
+        default: false
+    },
+    allow_free_download: { 
         type: Schema.Types.Boolean,
         default: false
     },

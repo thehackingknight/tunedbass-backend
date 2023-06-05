@@ -20,6 +20,7 @@ router.post("/",passport.authenticate("jwt"), upload.none(), async (req, res) =>
     album, 
     release_date,
     duration,
+    description,
     is_beat,
     is_demo,
     price,
@@ -44,6 +45,7 @@ router.post("/",passport.authenticate("jwt"), upload.none(), async (req, res) =>
           track.price = parseFloat(price);
           track.artist = user.id.toString();
           track.album = album;
+          track.description = description;
           track.genre = genre;
           track.collabos = collabos.split(",");
           track.tags = tags.split(",");
