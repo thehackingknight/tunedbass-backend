@@ -20,7 +20,7 @@ router.get("/login", function (req, res, next) {
 router.get("/check", passport.authenticate("jwt"), async (req, res) => {
   let isAuthenticated = req.isAuthenticated();
   if (isAuthenticated) {
-      res.status(200).json({ user: req.user });
+      res.status(200).json({ user: {...req.user.toObject(), id: req.user.id} });
   } else {
     res.status(401).json({ msg: "Incorrect credentials" });
   }

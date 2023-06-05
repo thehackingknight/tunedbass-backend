@@ -48,7 +48,7 @@ router.get("/ep/:endpoint", async (req, res) => {
 
         data.push({
           ...track?.toObject(),
-          artist: artist.toJSON(),
+          artist: {...artist.toObject(), id: artist.id},
           //url: hashedURL,
           id: track?.id,
         });
@@ -99,7 +99,7 @@ router.get("/", async (req, res) => {
 
       data.push({
         ...track?.toObject(),
-        artist: artist.toJSON(),
+        artist: {...artist.toObject(), id: artist.id},
         //url: hashedURL,
         id: track?.id,
         tags: track?.tags.filter((tag) => tag),
