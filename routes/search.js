@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { TrackModel } = require("../models/track");
+const { Track } = require("../models/track");
 const { checkAuthenticated, requestErr } = require("../utils/functions");
-const { ArtistModel } = require("../models/user");
+const { User } = require("../models/user");
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   try {
     const { q } = req.query;
 
-    let tracks = await TrackModel.find({
+    let tracks = await Track.find({
       tags: { $in: [new RegExp(`${q}`)]},
     }).exec();
-    tracks = tracks.concat(await TrackModel.find({
+    tracks = tracks.concat(await Track.find({
       title: { $regex: q },
     }).exec())
 
@@ -20,7 +20,7 @@ router.get("/", async function (req, res, next) {
     let _artists = [];
 
     for (let track of tracks) {
-      let artist = await ArtistModel.findById(track.artist).exec();
+      let artist = await User.findById(track.artist).exec();
       _tracks.push({
         ...track.toObject(),
         artist: { ...artist.toObject(), id: artist.id },
