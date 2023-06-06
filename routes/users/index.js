@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 router.get("/", async (req, res) => {
   const { username } = req.query;
 
-  let data;
+  let data; 
   if (username) {
     data = await User.findOne({ username }).exec();
     if (!data) return res.status(404).json(requestErr("User with specified username not found"))

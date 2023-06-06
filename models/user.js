@@ -6,10 +6,22 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
+    bio: {
+        type: String,
+        default: ""
+    },
     address: {
         type: String,
     },
     auth_token: String,
+    downloads: {
+        type: Number,
+        default: 0
+    },
+    earnings: {
+        type: Number,
+        default: 0
+    },
     email: {
         type: String,
         required: true,

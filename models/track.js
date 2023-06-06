@@ -17,6 +17,10 @@ const TrackSchema = new Schema({
         type: String,
         required: true
     },
+    downloads: {
+        type: Number,
+        default: 0
+    },
     size_in_bytes: {
         type: Number, 
         required: true
@@ -27,7 +31,10 @@ const TrackSchema = new Schema({
         required: true
     },
     album: String,
-    description: String,
+    description: {
+        type: String,
+        default: ""
+    },
     genre: String,
     artwork: {type: String, default: "https://res.cloudinary.com/sketchi/image/upload/v1642950989/TunedBass/images/mp3-download-icon-10_nsmdjt.png"},
     url: {

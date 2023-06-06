@@ -11,6 +11,8 @@ const {
 const cloudinary = require("cloudinary").v2;
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
+
+
 router.get("/", async (req, res) => {
   const { orderId } = req.query;
 
@@ -123,13 +125,27 @@ router.post("/complete",passport.authenticate("jwt"), async (req, res) => {
 
     for (let it of order.items) {
       let track = await Track.findById(it.id).exec();
+      let artist = await User.findById(it.artist['_id']).exec();
+
       if (track) {
+      // Update downloads count in track and also in artist
+      // Update artist earnings
         track.sold = true;
+        track.downloads += 1
+
+        artist.downloads += 1
+        artist.earnings += track.price;
+        
         await track.save();
+        await artist.save()
       }
     }
+
+    
+  
     order.complete = true;
     await order.save();
+
     res.send("ok");
   } catch (err) {
     console.log(err);
