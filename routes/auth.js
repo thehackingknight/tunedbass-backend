@@ -82,12 +82,12 @@ router.post("/signup", async (req, res) => {
       await otp.save();
 
       let mail = ` <div>
-      <h1>Thank you for signing up with TunedBass Music!</h1>
+      <h1>Thank you for signing up with Tunedaudio!</h1>
       <h3>Here is your one-time PIN.</h3>
       <p class="otp">${otp.otp}</p>
       <p>The PIN is <b>valid</b> for only <b>1 hour</b>.</p>
     </div>`;
-      let mailRes = await sendMail("TunedBass Music Signup", mail, user.email);
+      let mailRes = await sendMail("Tunedaudio Signup", mail, user.email);
       if (!mailRes)
         return res.status(500).json({ msg: "Something went wrong" });
       //SEND EMAIL

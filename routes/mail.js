@@ -4,7 +4,7 @@ const { sendMail } = require("../utils/functions");
 
 router.post("/send", async (req, res) => {
   try {
-    let r = await sendMail("Test email", "<h5>Just tesing</h5>", "squashdavenport2@gmail.com")
+    let r = await sendMail("Test email", "<h5>Just tesing</h5>", "clickbait4587@gmail.com")
     if (r) res.send("OK");
     else res.status(500).send("Could not send email");
   } catch (err) {
@@ -13,3 +13,4 @@ router.post("/send", async (req, res) => {
   }
 });
 module.exports = router;
+ 

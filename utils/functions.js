@@ -14,14 +14,15 @@ const checkAuthenticated = (req, res, next) =>{
    const sendMail = async(subject, body, clients) => { 
     try {
   
+      console.log(process.env.YAHOO_PORT)
       // create reusable transporter object using the default SMTP transport
       let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",      //"smtp.ethereal.email",
-        port: 587,
+        host: process.env.GMAIL_HOST,      //"smtp.ethereal.email",
+        port: process.env.GMAIL_PORT,
         secure: false, // true for 465, false for other ports
         auth: {
           user: process.env.EMAIL,//testAccount.user, // generated ethereal user
-          pass: process.env.PASSWORD//testAccount.pass, // generated ethereal password
+          pass: process.env.GMAIL_APP_PASS//testAccount.pass, // generated ethereal password
         },
       });
   
