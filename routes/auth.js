@@ -87,7 +87,7 @@ router.post("/signup", async (req, res) => {
       <p class="otp">${otp.otp}</p>
       <p>The PIN is <b>valid</b> for only <b>1 hour</b>.</p>
     </div>`;
-      let mailRes = await sendMail("Tunedaudio Signup", mail, user.email);
+      let mailRes = await sendMail("Tunedaudio AUTH", mail, user.email);
       if (!mailRes)
         return res.status(500).json({ msg: "Something went wrong" });
       //SEND EMAIL
