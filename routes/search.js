@@ -12,7 +12,7 @@ router.get("/", async function (req, res, next) {
       tags: { $in: [new RegExp(`${q}`)]},
     }).exec();
     tracks = tracks.concat(await Track.find({
-      title: { $regex: q },
+      title: { $regex: q, $options: 'i' },
     }).exec())
 
     let artists = [] 
@@ -20,16 +20,16 @@ router.get("/", async function (req, res, next) {
     let _artists = [];
 
     for (let track of tracks) {
+      
       let artist = await User.findById(track.artist).exec();
+      console.log(track.artist, artist)
       _tracks.push({
         ...track.toObject(),
         artist: { ...artist.toObject(), id: artist.id },
         id: track.id,
       });
     }
-    for (let artist of artists) {
-      _artists.push({ ...artist.toObject(), id: artist.id });
-    }
+
     let data = {
       tracks: _tracks,
       artists: _artists,
