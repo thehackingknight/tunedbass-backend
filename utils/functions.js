@@ -2,36 +2,35 @@ const cloudinary = require("cloudinary").v2;
 
 const nodemailer = require("nodemailer");
 const { OTP_Model } = require("../models/models");
-const checkAuthenticated = (req, res, next) =>{
-    if(req.isAuthenticated()) return next()
-    else res.status(401).json({msg:"AUTHENTICATION FAILED!"})
-  }
+const checkAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) return next();
+  else res.status(401).json({ msg: "AUTHENTICATION FAILED!" });
+};
 
-  const genUID = ()=>{
-    return Date.now() + "-" + Math.round(Math.random() * 1e9);
-  }
+const genUID = () => {
+  return Date.now() + "-" + Math.round(Math.random() * 1e9);
+};
 
-   const sendMail = async(subject, body, clients) => { 
-    try {
-  
-      console.log(process.env.YAHOO_PORT)
-      // create reusable transporter object using the default SMTP transport
-      let transporter = nodemailer.createTransport({
-        host: process.env.GMAIL_HOST,      //"smtp.ethereal.email",
-        port: process.env.GMAIL_PORT,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user: process.env.EMAIL,//testAccount.user, // generated ethereal user
-          pass: process.env.GMAIL_APP_PASS//testAccount.pass, // generated ethereal password
-        },
-      });
-  
-      // send mail with defined transport object
-      let info = await transporter.sendMail({
-        from: `"${process.env.SITE_NAME}" <${process.env.EMAIL}>`, // sender address
-        to: `"${clients}"`, // list of receivers
-        subject, // Subject line
-        html: `<html lang="en">
+const sendMail = async (subject, body, clients) => {
+  try {
+    console.log(process.env.YAHOO_PORT);
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: process.env.GMAIL_HOST, //"smtp.ethereal.email",
+      port: process.env.GMAIL_PORT,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL, //testAccount.user, // generated ethereal user
+        pass: process.env.GMAIL_APP_PASS, //testAccount.pass, // generated ethereal password
+      },
+    });
+
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+      from: `"${process.env.SITE_NAME}" <${process.env.EMAIL}>`, // sender address
+      to: `"${clients}"`, // list of receivers
+      subject, // Subject line
+      html: `<html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -133,34 +132,50 @@ const checkAuthenticated = (req, res, next) =>{
         </body>
         </html>
               `, // html body
-      });
-  
-      console.log("Message sent: %s", info.messageId);
-      // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-      return "Ok"
-    } catch (err) {
-      console.log(err);
-      return null
-    }
-   }
-   function configCloudinary() {
-    // Configuration
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_KEY,
-      api_secret: process.env.CLOUDINARY_SECRET,
     });
+
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+    return "Ok";
+  } catch (err) {
+    console.log(err);
+    return null;
   }
-  function randomIntFromInterval(min, max) { // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min)
-  }
-  async function genOTP(){
-    let otp = randomIntFromInterval(100000, 999999)
-    let otpExists = await OTP_Model.findOne({ otp }).exec()
-    if (otpExists) await genOTP()
-    return otp
- }
-  const requestErr = (msg = "Something went wrong!") => {
-    return { msg }
-  }
-module.exports = {requestErr, checkAuthenticated, genUID, sendMail, configCloudinary, genOTP }
+};
+function configCloudinary() {
+  // Configuration
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+  });
+}
+function randomIntFromInterval(min, max) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+async function genOTP() {
+  let otp = randomIntFromInterval(100000, 999999);
+  let otpExists = await OTP_Model.findOne({ otp }).exec();
+  if (otpExists) await genOTP();
+  return otp;
+}
+const requestErr = (msg = "Something went wrong!") => {
+  return { msg };
+};
+
+async function deleteTrack(public_id) {
+  configCloudinary();
+  return cloudinary.uploader.destroy(public_id, {
+    resource_type: "raw",
+  });
+}
+module.exports = {
+  requestErr,
+  checkAuthenticated,
+  genUID,
+  sendMail,
+  configCloudinary,
+  genOTP,
+  deleteTrack,
+};

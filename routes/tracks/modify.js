@@ -40,6 +40,29 @@ router.post("/play",  async (req, res) => {
     res.status(500).json(requestErr("Something went wrong"));
   }
 });
+router.post("/like", passport.authenticate("jwt"),   async (req, res) => {
+  try {
+    const { trackId } = req.body;
+
+    if (!req.user)  res.status(401).json(requestErr("Login or signup to like"));
+    try {
+        const { user } = req
+        let track  = await Track.findById(trackId).exec()
+
+        if (track.likes.indexOf(user.id) == -1) track.likes.push(user.id)
+        else track.likes = track.likes.filter(it => it !== user.id)
+        
+        await track.save()
+        res.send({msg: "Play added to track"})
+    } catch (e) {
+      console.log(e);
+      console.log("Could not write file");
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(requestErr("Something went wrong"));
+  }
+});
 
 router.post('/', passport.authenticate("jwt"), async (req, res)=>{
   const { id } = req.query

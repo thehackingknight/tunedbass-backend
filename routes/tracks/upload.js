@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const {
-  requestErr,
+  requestErr, deleteTrack,
 } = require("../../utils/functions");
 const { Track } = require("../../models/track");
 const { User } = require("../../models/user");
@@ -68,10 +68,26 @@ router.post("/",passport.authenticate("jwt"), upload.none(), async (req, res) =>
           }
         
     } catch (err) {
+
+      // Delete track from cloudinary
+      try{
+        await deleteTrack(public_id)
+      }
+      catch(e){
+        console.log("Failed to delete track from cloudinary")
+        console.log(e)
+      }
       console.log(err);
       res.status(500).json(requestErr());
     }
   } else {
+    try{
+      await deleteTrack(public_id)
+    }
+    catch(e){
+      console.log("Failed to delete track from cloudinary")
+      console.log(e)
+    }
     // Not logged in
     res.status(401).json(requestErr("Login to upload stuff"));
   }

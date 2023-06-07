@@ -8,7 +8,7 @@ const { User } = require("../../models/user");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
-const { configCloudinary, requestErr } = require("../../utils/functions");
+const { configCloudinary, requestErr, deleteTrack } = require("../../utils/functions");
 
 const path = require("path");
 const https = require("https");
@@ -120,10 +120,7 @@ router.post("/delete", async (req, res) => {
       await Track.findOneAndRemove({}).exec();
       console.log("Removed ", track.title);
       // Delete file from cloudinary
-      configCloudinary();
-      await cloudinary.uploader.destroy(track.public_id, {
-        resource_type: "video",
-      });
+      await deleteTrack(track.public_id)
       // Removing from artist track list
       let artist = await User.findById(track.artist).exec();
       if (artist) {
